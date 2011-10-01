@@ -15,8 +15,7 @@ class Libyaml < Formula
     args = ["--prefix=#{prefix}"]
 
     if ARGV.build_universal?
-      ENV['CFLAGS'] = "-arch i386 -arch x86_64"
-      ENV['LDFLAGS'] = "-arch i386 -arch x86_64"
+      ENV.universal_binary
       args << "--disable-dependency-tracking"
     end
 

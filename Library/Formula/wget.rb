@@ -9,13 +9,21 @@ class Wget < Formula
   depends_on "libidn" if ARGV.include? "--enable-iri"
 
   def options
-    [["--enable-iri", "Enable iri support."]]
+    [
+      ["--enable-iri", "Enable iri support."],
+      ['--universal', 'Build universal binaries.']
+    ]
   end
 
   def install
     args = ["--disable-debug",
             "--prefix=#{prefix}",
             "--with-ssl=openssl"]
+
+    if ARGV.build_universal?
+      ENV.universal_binary
+      args << "--disable-dependency-tracking"
+    end
 
     args << "--disable-iri" unless ARGV.include? "--enable-iri"
 
