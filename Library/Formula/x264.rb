@@ -11,7 +11,10 @@ class X264 < Formula
   depends_on 'yasm' => :build
 
   def options
-    [["--10-bit", "Make a 10-bit x264. (default: 8-bit)"]]
+    [
+      ["--10-bit", "Make a 10-bit x264. (default: 8-bit)"],
+      ["--universal", "Build for both 32 & 64 bit Intel."],
+    ]
   end
 
   def install
@@ -21,9 +24,17 @@ class X264 < Formula
     args = ["--prefix=#{prefix}", "--enable-shared"]
     args << "--bit-depth=10" if ARGV.include?('--10-bit')
 
-    system "./configure", *args
+    if ARGV.build_universal?
+      args << "--disable-asm"
+      system "./configure", *args
+      system "make .depend"
+      ENV.universal_binary
+    end
 
-    if MacOS.prefer_64_bit?
+    system "./configure", *args
+    system "touch .depend"
+
+    if MacOS.prefer_64_bit? && !ARGV.build_universal?
       inreplace 'config.mak' do |s|
         soflags = s.get_make_var 'SOFLAGS'
         s.change_make_var! 'SOFLAGS', soflags.gsub(' -Wl,-read_only_relocs,suppress', '')
