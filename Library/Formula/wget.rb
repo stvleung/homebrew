@@ -19,6 +19,7 @@ class Wget < Formula
   def install
     args = ["--disable-debug",
             "--prefix=#{prefix}",
+            "--sysconfdir=#{etc}",
             "--with-ssl=openssl"]
 
     if ARGV.build_universal?
