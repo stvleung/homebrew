@@ -12,7 +12,15 @@ class Rtmpdump < Formula
   # Use dylib instead of so
   def patches; DATA; end
 
+  def options
+    [["--universal", "Build for both 32 & 64 bit Intel."]]
+  end
+
   def install
+    if ARGV.build_universal?
+      ENV.universal_binary
+    end
+
     ENV.deparallelize
     system "make", "CC=#{ENV.cc}",
                    "XCFLAGS=#{ENV.cflags}",

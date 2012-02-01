@@ -5,7 +5,15 @@ class Xvid < Formula
   homepage 'http://www.xvid.org'
   md5 '87c8cf7b69ebed93c2d82ea5709d098a'
 
+  def options
+    [["--universal", "Build for both 32 & 64 bit Intel."]]
+  end
+
   def install
+    if ARGV.build_universal?
+      ENV.universal_binary
+    end
+
     cd 'build/generic' do
       system "./configure", "--disable-assembly", "--prefix=#{prefix}"
       system "make"

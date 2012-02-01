@@ -8,7 +8,15 @@ class Libvorbis < Formula
   depends_on 'pkg-config' => :build
   depends_on 'libogg'
 
+  def options
+    [["--universal", "Build for both 32 & 64 bit Intel."]]
+  end
+
   def install
+    if ARGV.build_universal?
+      ENV.universal_binary
+    end
+
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
     system "make install"
