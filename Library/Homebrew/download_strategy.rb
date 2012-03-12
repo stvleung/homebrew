@@ -191,7 +191,7 @@ end
 class CurlBottleDownloadStrategy < CurlDownloadStrategy
   def initialize url, name, version, specs
     super
-    @tarball_path = HOMEBREW_CACHE/"#{name}-#{version}.bottle#{ext}"
+    @tarball_path = HOMEBREW_CACHE/"#{name}-#{version}.#{MacOS.cat}.bottle#{ext}"
   end
   def stage
     ohai "Pouring #{File.basename(@tarball_path)}"
@@ -383,6 +383,7 @@ class GitDownloadStrategy < AbstractDownloadStrategy
         safe_system 'git', 'submodule', '--quiet', 'foreach', '--recursive', sub_cmd
       end
     end
+    ENV['GIT_DIR'] = cached_location+'.git'
   end
 end
 

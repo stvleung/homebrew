@@ -138,6 +138,15 @@ def puts_columns items, star_items=[]
   end
 end
 
+def which cmd
+  path = `/usr/bin/which #{cmd}`.chomp
+  if path.empty?
+    nil
+  else
+    Pathname.new(path)
+  end
+end
+
 def which_editor
   editor = ENV['HOMEBREW_EDITOR'] || ENV['EDITOR']
   # If an editor wasn't set, try to pick a sane default
@@ -216,7 +225,11 @@ def inreplace path, before=nil, after=nil
       s.extend(StringInreplaceExtension)
       yield s
     else
-      s.gsub!(before, after)
+      sub = s.gsub!(before, after)
+      if sub.nil?
+        opoo "inreplace in '#{path}' failed"
+        puts "Expected replacement of '#{before}' with '#{after}'"
+      end
     end
 
     f.reopen(path, 'w').write(s)
@@ -249,6 +262,20 @@ end
 module MacOS extend self
   def version
     MACOS_VERSION
+  end
+
+  def cat
+    if mountain_lion?
+      :mountainlion
+    elsif lion?
+      :lion
+    elsif snow_leopard?
+      :snowleopard
+    elsif leopard?
+      :leopard
+    else
+      nil
+    end
   end
 
   def dev_tools_path
@@ -359,10 +386,10 @@ module MacOS extend self
       raise if $1.nil? or not $?.success?
       $1
     rescue
-      # for people who don't have xcodebuild installed due to using
-      # some variety of minimal installer, let's try and guess their
-      # Xcode version
-      case llvm_build_version.to_i
+      # For people who's xcode-select is unset, or who have installed
+      # xcode-gcc-installer or whatever other combinations we can try and
+      # supprt. See https://github.com/mxcl/homebrew/wiki/Xcode
+      case nil
       when 0..2063 then "3.1.0"
       when 2064..2065 then "3.1.4"
       when 2366..2325
@@ -377,7 +404,24 @@ module MacOS extend self
         # https://github.com/mxcl/homebrew/wiki/Xcode
         "4.0"
       else
-        "4.2"
+        case (clang_version.to_f * 10).to_i
+        when 0..14
+          "3.2.2"
+        when 15
+          "3.2.4"
+        when 16
+          "3.2.5"
+        when 17..20
+          "4.0"
+        when 21
+          "4.1"
+        when 22..30
+          "4.2"
+        when 31
+          "4.3"
+        else
+          "4.3"
+        end
       end
     end
   end
@@ -458,10 +502,6 @@ module MacOS extend self
 
   def prefer_64_bit?
     Hardware.is_64_bit? and not leopard?
-  end
-
-  def bottles_supported?
-    lion? and HOMEBREW_PREFIX.to_s == '/usr/local' and HOMEBREW_CELLAR.to_s == '/usr/local/Cellar'
   end
 end
 
