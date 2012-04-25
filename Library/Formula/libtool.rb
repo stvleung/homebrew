@@ -13,7 +13,13 @@ class Libtool < Formula
     keg_only "Xcode (up to and including 4.2) provides (a rather old) Libtool."
   end
 
+  def options
+    [['--universal', 'Build universal binaries.']]
+  end
+
   def install
+    ENV.universal_binary if ARGV.build_universal?
+
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}",
                           "--program-prefix=g",
