@@ -6,22 +6,13 @@ class Lame < Formula
   md5 '84835b313d4a8b68f5349816d33e07ce'
 
   def options
-  [
-    ['--universal', 'Build universal binaries.']
-  ]
+    [["--universal", "Build a universal binary."]]
   end
 
   def install
-    args = ["--disable-debug",
-            "--prefix=#{prefix}",
-            "--enable-nasm"]
+    ENV.universal_binary if ARGV.build_universal?
 
-    if ARGV.build_universal?
-      ENV.universal_binary 
-      args << "--disable-dependency-tracking"
-    end
-
-    system "./configure", *args
+    system "./configure", "--disable-debug", "--prefix=#{prefix}", "--enable-nasm"
     system "make install"
   end
 end
