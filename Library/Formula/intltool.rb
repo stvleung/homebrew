@@ -11,7 +11,12 @@ class Intltool < Formula
   # @adamv
   depends_on 'XML::Parser' => :perl
 
+  def options
+    [['--universal', 'Build universal binaries']]
+  end
+
   def install
+    ENV.universal_binary if ARGV.build_universal?
     system "./configure", "--prefix=#{prefix}"
     system "make install"
   end

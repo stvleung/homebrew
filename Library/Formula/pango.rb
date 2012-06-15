@@ -25,15 +25,33 @@ class Pango < Formula
     cause "Undefined symbols when linking"
   end
 
+  def options
+    [
+      ['--universal', 'Build universal binaries'],
+      ['--quartz', 'Build quartz "variant"']
+    ]
+  end
+
   def install
-    ENV.x11
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-debug",
-                          "--prefix=#{prefix}",
-                          "--enable-man",
-                          "--with-x",
-                          "--with-html-dir=#{share}/doc",
-                          "--disable-introspection"
+    args = %W[
+      --disable-dependency-tracking
+      --disable-debug
+      --prefix=#{prefix}
+      --enable-man
+      --with-html-dir=#{share}/doc
+      --disable-introspection
+    ]
+
+    if ARGV.include? "--quartz"
+      args << '--without-x'
+    else
+      ENV.x11
+      args << '--with-x'
+    end
+
+    ENV.universal_binary if ARGV.build_universal?
+
+    system "./configure", *args
     system "make"
     system "make install"
   end

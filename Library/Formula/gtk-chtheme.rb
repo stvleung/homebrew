@@ -12,10 +12,19 @@ class GtkChtheme < Formula
   depends_on 'gtk+'
   depends_on 'pango'
 
+  def options
+    [['--universal', 'Build universal binaries']]
+  end
+
   def install
     # Unfortunately chtheme relies on some deprecated functionality
     # we need to disable errors for it to compile properly
     inreplace 'Makefile', '-DGTK_DISABLE_DEPRECATED', ''
+
+    if ARGV.build_universal?
+      ENV.universal_binary
+      ENV.llvm
+    end
 
     system "make", "PREFIX=#{prefix}", "install"
   end

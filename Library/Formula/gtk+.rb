@@ -20,13 +20,31 @@ class Gtkx < Formula
     cause "Undefined symbols when linking"
   end
 
+  def options
+    [
+      ['--universal', 'Build universal binaries'],
+      ['--quartz', 'Build quartz "variant"'],
+    ]
+  end
+
   def install
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
-                          "--disable-glibtest",
-                          "--disable-introspection",
-                          "--disable-visibility"
+    args = %W[
+      --disable-debug
+      --disable-dependency-tracking
+      --prefix=#{prefix}
+      --disable-glibtest
+      --disable-introspection
+      --disable-visibility
+    ]
+
+    ENV.universal_binary if ARGV.build_universal?
+
+    if ARGV.include? "--quartz"
+      args << '--with-gdktarget=quartz'
+      args << '--without-x'
+    end
+
+    system "./configure", *args
     system "make install"
   end
 
