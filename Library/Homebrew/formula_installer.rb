@@ -29,7 +29,7 @@ class FormulaInstaller
     end
 
     # Building head-only without --HEAD is an error
-    if not ARGV.build_head? and f.standard.nil?
+    if not ARGV.build_head? and f.stable.nil?
       raise CannotInstallFormulaError, <<-EOS.undent
         #{f} is a head-only formula
         Install with `brew install --HEAD #{f.name}
@@ -37,13 +37,14 @@ class FormulaInstaller
     end
 
     # Building stable-only with --HEAD is an error
-    if ARGV.build_head? and f.unstable.nil?
+    if ARGV.build_head? and f.head.nil?
       raise CannotInstallFormulaError, "No head is defined for #{f.name}"
     end
 
     f.recursive_deps.each do |dep|
       if dep.installed? and not dep.keg_only? and not dep.linked_keg.directory?
-        raise CannotInstallFormulaError, "You must `brew link #{dep}' before #{f} can be installed"
+        raise CannotInstallFormulaError,
+              "You must `brew link #{dep}' before #{f} can be installed"
       end
     end unless ignore_deps
 
@@ -66,13 +67,23 @@ class FormulaInstaller
       EOS
     end
 
-    f.external_deps.each do |dep|
-      unless dep.satisfied?
-        puts dep.message
-        if dep.fatal? and not ignore_deps
-          raise UnsatisfiedRequirement.new(f, dep)
+    # Build up a list of unsatisifed fatal requirements
+    first_message = true
+    unsatisfied_fatals = []
+    f.requirements.each do |req|
+      unless req.satisfied?
+        # Newline between multiple messages
+        puts unless first_message
+        puts req.message
+        first_message = false
+        if req.fatal? and not ignore_deps
+          unsatisfied_fatals << req
         end
       end
+    end
+
+    unless unsatisfied_fatals.empty?
+      raise UnsatisfiedRequirements.new(f, unsatisfied_fatals)
     end
 
     unless ignore_deps
@@ -130,8 +141,7 @@ class FormulaInstaller
   end
 
   def caveats
-    the_caveats = (f.caveats || "").strip
-    unless the_caveats.empty?
+    unless f.caveats.to_s.strip.empty?
       ohai "Caveats", f.caveats
       @show_summary_heading = true
     end
@@ -146,6 +156,22 @@ class FormulaInstaller
       check_manpages
       check_infopages
       check_m4
+    end
+
+    keg = Keg.new(f.prefix)
+
+    if keg.completion_installed? :bash
+      ohai 'Caveats', <<-EOS.undent
+        Bash completion has been installed to:
+          #{HOMEBREW_PREFIX}/etc/bash_completion.d
+        EOS
+    end
+
+    if keg.completion_installed? :zsh
+      ohai 'Caveats', <<-EOS.undent
+        zsh completion has been installed to:
+          #{HOMEBREW_PREFIX}/share/zsh/site-functions
+        EOS
     end
   end
 
@@ -196,6 +222,7 @@ class FormulaInstaller
         read.close
         exec '/usr/bin/nice',
              '/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby',
+             '-W0',
              '-I', Pathname.new(__FILE__).dirname,
              '-rbuild',
              '--',
@@ -261,7 +288,7 @@ class FormulaInstaller
 
   def pour
     fetched, downloader = f.fetch
-    f.verify_download_integrity fetched, f.bottle_sha1, "SHA1"
+    f.verify_download_integrity fetched
     HOMEBREW_CELLAR.cd do
       downloader.stage
     end
@@ -326,12 +353,11 @@ class FormulaInstaller
   def check_non_libraries
     return unless File.exist? f.lib
 
-    valid_libraries = %w(.a .dylib .framework .jnilib .la .o .so)
-    allowed_non_libraries = %w(.jar .prl .pm)
+    valid_extensions = %w(.a .dylib .framework .jnilib .la .o .so
+                          .jar .prl .pm)
     non_libraries = f.lib.children.select do |g|
       next if g.directory?
-      extname = g.extname
-      (not allowed_non_libraries.include? extname) and (not valid_libraries.include? extname)
+      not valid_extensions.include? g.extname
     end
 
     unless non_libraries.empty?
@@ -377,13 +403,15 @@ class FormulaInstaller
   end
 
   def check_m4
-    return if MacOS.xcode_version.to_f >= 4.3
+    # Newer versions of Xcode don't come with autotools
+    return if MacOS::Xcode.version.to_f >= 4.3
 
+    # If the user has added our path to dirlist, don't complain
     return if File.open("/usr/share/aclocal/dirlist") do |dirlist|
       dirlist.grep(%r{^#{HOMEBREW_PREFIX}/share/aclocal$}).length > 0
     end rescue false
 
-    # Check for m4 files
+    # Check for installed m4 files
     if Dir[f.share+"aclocal/*.m4"].length > 0
       opoo 'm4 macros were installed to "share/aclocal".'
       puts "Homebrew does not append \"#{HOMEBREW_PREFIX}/share/aclocal\""

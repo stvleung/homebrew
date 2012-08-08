@@ -10,11 +10,6 @@ class TodoTxt < Formula
   def install
     bin.install 'todo.sh'
     prefix.install 'todo.cfg' # Default config file
-  end
-
-  def caveats; <<-EOS.undent
-    To configure, copy the default config to your home and edit it:
-      cp #{prefix}/todo.cfg ~/.todo.cfg
-    EOS
+    (prefix+'etc/bash_completion.d').install 'todo_completion'
   end
 end

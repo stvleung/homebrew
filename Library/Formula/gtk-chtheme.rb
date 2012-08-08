@@ -11,6 +11,7 @@ class GtkChtheme < Formula
   depends_on 'glib'
   depends_on 'gtk+'
   depends_on 'pango'
+  depends_on :x11
 
   def options
     [['--universal', 'Build universal binaries']]

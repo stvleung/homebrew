@@ -1,19 +1,19 @@
 require 'formula'
 
 class GitManuals < Formula
-  url 'http://git-core.googlecode.com/files/git-manpages-1.7.11.tar.gz'
-  sha1 '9f963243dfdbf5d77049e5fbb1e8e571effa4285'
+  url 'http://git-core.googlecode.com/files/git-manpages-1.7.11.4.tar.gz'
+  sha1 '032301a87832d738149925ad2912baa554ae2270'
 end
 
 class GitHtmldocs < Formula
-  url 'http://git-core.googlecode.com/files/git-htmldocs-1.7.11.tar.gz'
-  sha1 '34d7fb39e7c5e290ca041ffca3cb1fb4256f6fb3'
+  url 'http://git-core.googlecode.com/files/git-htmldocs-1.7.11.4.tar.gz'
+  sha1 'ceb4b4699a6561719aa07e01601ed5491206c075'
 end
 
 class Git < Formula
   homepage 'http://git-scm.com'
-  url 'http://git-core.googlecode.com/files/git-1.7.11.tar.gz'
-  sha1 '15abe2c5b6b7cf9b738e3fb57ab9234ae02a1e61'
+  url 'http://git-core.googlecode.com/files/git-1.7.11.4.tar.gz'
+  sha1 '36180126eb2048d49b00f6092d83568df4e61c4c'
 
   head 'https://github.com/git/git.git'
 
@@ -72,9 +72,6 @@ class Git < Formula
   end
 
   def caveats; <<-EOS.undent
-    Bash completion has been installed to:
-      #{etc}/bash_completion.d
-
     The OS X keychain credential helper has been installed to:
       #{HOMEBREW_PREFIX}/bin/git-credential-osxkeychain
 
