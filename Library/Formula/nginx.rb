@@ -6,27 +6,23 @@ class Nginx < Formula
   sha1 '98059ae08ebbfaaead868128f7b66ebce16be9af'
 
   devel do
-    url 'http://nginx.org/download/nginx-1.3.4.tar.gz'
-    sha1 'ea3027b93a0f82cf9e176c90128c669ea2a688ae'
+    url 'http://nginx.org/download/nginx-1.3.5.tar.gz'
+    sha1 'ce0245295f23a54f10d916eb6b7b34469d0618a1'
   end
 
   depends_on 'pcre'
+
+  option 'with-passenger', 'Compile with support for Phusion Passenger module'
+  option 'with-webdav', 'Compile with support for WebDAV module'
+  option 'with-perl', 'Compile with support for Embedded Perl module'
+  option 'with-gzip_static', 'Compile with support for Gzip Precompression module'
+  option :universal
 
   skip_clean 'logs'
 
   # Changes default port to 8080
   def patches
     DATA
-  end
-
-  def options
-    [
-      ['--with-passenger',   "Compile with support for Phusion Passenger module"],
-      ['--with-webdav',      "Compile with support for WebDAV module"],
-      ['--with-perl',        "Compile with support for Embedded Perl module"],
-      ['--with-gzip_static', "Compile with support for Gzip Precompression module"],
-      ['--universal',        "Build for both 32 & 64 bit Intel"]
-    ]
   end
 
   def passenger_config_args
@@ -53,12 +49,12 @@ class Nginx < Formula
             "--pid-path=#{var}/run/nginx.pid",
             "--lock-path=#{var}/nginx/nginx.lock"]
 
-    args << passenger_config_args if ARGV.include? '--with-passenger'
-    args << "--with-http_dav_module" if ARGV.include? '--with-webdav'
-    args << "--with-http_perl_module" if ARGV.include? '--with-perl'
-    args << "--with-http_gzip_static_module" if ARGV.include? '--with-gzip'
+    args << passenger_config_args if build.include? 'with-passenger'
+    args << "--with-http_dav_module" if build.include? 'with-webdav'
+    args << "--with-http_perl_module" if ARGV.include? 'with-perl'
+    args << "--with-http_gzip_static_module" if ARGV.include? 'with-gzip'
 
-    if ARGV.build_universal?
+    if build.universal?
       ENV.universal_binary
     end
 

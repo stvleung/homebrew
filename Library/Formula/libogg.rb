@@ -3,26 +3,24 @@ require 'formula'
 class Libogg < Formula
   homepage 'http://www.xiph.org/ogg/'
   url 'http://downloads.xiph.org/releases/ogg/libogg-1.3.0.tar.gz'
-  md5 '0a7eb40b86ac050db3a789ab65fe21c2'
+  sha1 'a900af21b6d7db1c7aa74eb0c39589ed9db991b8'
+
+  option :universal
 
   head 'http://svn.xiph.org/trunk/ogg'
 
-  if ARGV.build_head?
+  if build.head?
     depends_on :autoconf
     depends_on :automake
     depends_on :libtool
   end
 
-  def options
-    [["--universal", "Build for both 32 & 64 bit Intel."]]
-  end
-
   def install
-    if ARGV.build_universal?
+    if build.universal?
       ENV.universal_binary
     end
 
-    system "./autogen.sh" if ARGV.build_head?
+    system "./autogen.sh" if build.head?
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
     system "make"

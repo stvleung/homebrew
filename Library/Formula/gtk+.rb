@@ -5,6 +5,9 @@ class Gtkx < Formula
   url 'http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/gtk+-2.24.11.tar.xz'
   sha256 '328b4ea19a61040145e777e2ac49820968a382ac8581a380c9429897881812a9'
 
+  option :universal
+  option 'quartz', 'Build quartz "variant"'
+
   depends_on 'pkg-config' => :build
   depends_on 'xz' => :build
   depends_on 'glib'
@@ -22,13 +25,6 @@ class Gtkx < Formula
     cause "Undefined symbols when linking"
   end
 
-  def options
-    [
-      ['--universal', 'Build universal binaries'],
-      ['--quartz', 'Build quartz "variant"'],
-    ]
-  end
-
   def install
     args = %W[
       --disable-debug
@@ -39,12 +35,17 @@ class Gtkx < Formula
       --disable-visibility
     ]
 
-    ENV.universal_binary if ARGV.build_universal?
+    ENV.universal_binary if build.universal?
 
-    if ARGV.include? "--quartz"
+    if build.include? "quartz"
       args << '--with-gdktarget=quartz'
       args << '--without-x'
     end
+
+    # Always prefer our cairo over XQuartz cairo
+    cairo = Formula.factory('cairo')
+    ENV['CAIRO_BACKEND_CFLAGS'] = "-I#{cairo.include}/cairo"
+    ENV['CAIRO_BACKEND_LIBS'] = "-L#{cairo.lib} -lcairo"
 
     system "./configure", *args
     system "make install"

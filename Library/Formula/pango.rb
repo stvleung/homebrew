@@ -5,12 +5,14 @@ class Pango < Formula
   url 'http://ftp.gnome.org/pub/GNOME/sources/pango/1.30/pango-1.30.1.tar.xz'
   sha256 '3a8c061e143c272ddcd5467b3567e970cfbb64d1d1600a8f8e62435556220cbe'
 
+  option 'without-x', 'Build without X11 support'
+  option :universal
+
   depends_on 'pkg-config' => :build
   depends_on 'xz' => :build
   depends_on 'glib'
-  depends_on :x11
-
-  depends_on 'fontconfig' if MacOS.leopard?
+  depends_on :fontconfig
+  depends_on :x11 unless build.include? 'without-x'
 
   # The Cairo library shipped with Lion contains a flaw that causes Graphviz
   # to segfault. See the following ticket for information:
@@ -23,31 +25,23 @@ class Pango < Formula
     cause "Undefined symbols when linking"
   end
 
-  def options
-    [
-      ['--universal', 'Build universal binaries'],
-      ['--quartz', 'Build quartz "variant"']
-    ]
-  end
-
   def install
+    # Always prefer our cairo over XQuartz cairo
+    cairo = Formula.factory('cairo')
+    ENV['CAIRO_CFLAGS'] = "-I#{cairo.include}/cairo"
+    ENV['CAIRO_LIBS'] = "-L#{cairo.lib} -lcairo"
+
     args = %W[
       --disable-dependency-tracking
-      --disable-debug
       --prefix=#{prefix}
       --enable-man
       --with-html-dir=#{share}/doc
       --disable-introspection
     ]
 
-    if ARGV.include? "--quartz"
-      args << '--without-x'
-    else
-      ENV.x11
-      args << '--with-x'
-    end
+    ENV.universal_binary if build.universal?
 
-    ENV.universal_binary if ARGV.build_universal?
+    args << '--with-x' unless build.include? 'without-x'
 
     system "./configure", *args
     system "make"
@@ -60,7 +54,6 @@ class Pango < Formula
                                   "--waterfall", "--rotate=10",
                                   "--annotate=1", "--header",
                                   "-q", "-o", "output.png"
-      system "/usr/bin/qlmanage", "-p", "output.png"
     end
   end
 end

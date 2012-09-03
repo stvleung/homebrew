@@ -5,28 +5,26 @@ class Libvorbis < Formula
   url 'http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.3.tar.xz'
   sha1 '31d1a0ec4815bf1ee638b0f2850f03efcd48022a'
 
+  option :universal
+
   head 'http://svn.xiph.org/trunk/vorbis'
 
   depends_on 'xz' => :build
   depends_on 'pkg-config' => :build
   depends_on 'libogg'
 
-  if ARGV.build_head?
+  if build.head?
     depends_on :autoconf
     depends_on :automake
     depends_on :libtool
   end
 
-  def options
-    [["--universal", "Build for both 32 & 64 bit Intel."]]
-  end
-
   def install
-    if ARGV.build_head?
+    if build.head?
       system "./autogen.sh"
     end
 
-    if ARGV.build_universal?
+    if build.universal?
       ENV.universal_binary
     end
 
