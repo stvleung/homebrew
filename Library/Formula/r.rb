@@ -4,7 +4,7 @@ class RBashCompletion < Formula
   # This is the same script that Debian packages use.
   url 'http://rcompletion.googlecode.com/svn-history/r28/trunk/bash_completion/R', :using => :curl
   version 'r28'
-  sha1 'f0e6912be6dfc0d1fdc4be66048304d8befe8424'
+  sha1 'af734b8624b33f2245bf88d6782bea0dc5d829a4'
 end
 
 class R < Formula
@@ -64,7 +64,7 @@ class R < Formula
 
     To use this Framework with IDEs such as RStudio, it must be linked
     to the standard OS X location:
-      ln -s "#{prefix}/R.framework" /Library/Frameworks
+      sudo ln -s "#{prefix}/R.framework" /Library/Frameworks
 
     To enable rJava support, run the following command:
       R CMD javareconf JAVA_CPPFLAGS=-I/System/Library/Frameworks/JavaVM.framework/Headers

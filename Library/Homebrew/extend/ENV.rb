@@ -10,14 +10,15 @@ module HomebrewEnvExtension
     remove_cc_etc
 
     if MacOS.version >= :mountain_lion
-      # Fix issue with sed barfing on unicode characters on Mountain Lion.
+      # Mountain Lion's sed is stricter, and errors out when
+      # it encounters files with mixed character sets
       delete('LC_ALL')
       self['LC_CTYPE']="C"
-
-      # Mountain Lion no longer ships a few .pcs; make sure we pick up our versions
-      prepend 'PKG_CONFIG_PATH',
-        HOMEBREW_REPOSITORY/'Library/Homebrew/pkgconfig', ':'
     end
+
+    # Set the default pkg-config search path, overriding the built-in paths
+    # Anything in PKG_CONFIG_PATH is searched before paths in this variable
+    self['PKG_CONFIG_LIBDIR'] = determine_pkg_config_libdir
 
     # make any aclocal stuff installed in Homebrew available
     self['ACLOCAL_PATH'] = "#{HOMEBREW_PREFIX}/share/aclocal" if MacOS::Xcode.provides_autotools?
@@ -47,12 +48,6 @@ module HomebrewEnvExtension
       self['OBJC'] = self['CC']
     end
 
-    # In rare cases this may break your builds, as the tool for some reason wants
-    # to use a specific linker. However doing this in general causes formula to
-    # build more successfully because we are changing CC and many build systems
-    # don't react properly to that.
-    self['LD'] = self['CC']
-
     # Add lib and include etc. from the current macosxsdk to compiler flags:
     macosxsdk MacOS.version
 
@@ -63,6 +58,15 @@ module HomebrewEnvExtension
       # Others are now at /Applications/Xcode.app/Contents/Developer/usr/bin
       append 'PATH', "#{MacOS.dev_tools_path}", ":"
     end
+  end
+
+  def determine_pkg_config_libdir
+    paths = []
+    paths << HOMEBREW_PREFIX/'lib/pkgconfig'
+    paths << HOMEBREW_PREFIX/'share/pkgconfig'
+    paths << HOMEBREW_REPOSITORY/'Library/Homebrew/pkgconfig' if MacOS.version >= :mountain_lion
+    paths << '/usr/lib/pkgconfig'
+    paths.select { |d| File.directory? d }.join(':')
   end
 
   def deparallelize
@@ -109,7 +113,6 @@ module HomebrewEnvExtension
   def gcc_4_0_1
     # we don't use locate because gcc 4.0 has not been provided since Xcode 4
     self['CC'] = "#{MacOS.dev_tools_path}/gcc-4.0"
-    self['LD'] = self['CC']
     self['CXX'] = "#{MacOS.dev_tools_path}/g++-4.0"
     self['OBJC'] = self['CC']
     replace_in_cflags '-O4', '-O3'
@@ -124,7 +127,6 @@ module HomebrewEnvExtension
     self['CC'] = `/usr/bin/xcrun -find #{$1}`.chomp if $1
     self['CXX'] =~ %r{/usr/bin/xcrun (.*)}
     self['CXX'] = `/usr/bin/xcrun -find #{$1}`.chomp if $1
-    self['LD'] = self['CC']
     self['OBJC'] = self['CC']
   end
 
@@ -134,13 +136,11 @@ module HomebrewEnvExtension
     # But we don't want LLVM of course.
 
     self['CC'] = MacOS.locate "gcc-4.2"
-    self['LD'] = self['CC']
     self['CXX'] = MacOS.locate "g++-4.2"
     self['OBJC'] = self['CC']
 
     unless self['CC']
       self['CC'] = "#{HOMEBREW_PREFIX}/bin/gcc-4.2"
-      self['LD'] = self['CC']
       self['CXX'] = "#{HOMEBREW_PREFIX}/bin/g++-4.2"
       self['OBJC'] = self['CC']
       raise "GCC could not be found" unless File.exist? self['CC']
@@ -158,7 +158,6 @@ module HomebrewEnvExtension
 
   def llvm
     self['CC'] = MacOS.locate "llvm-gcc"
-    self['LD'] = self['CC']
     self['CXX'] = MacOS.locate "llvm-g++"
     self['OBJC'] = self['CC']
     set_cpu_cflags 'core2 -msse4', :penryn => 'core2 -msse4.1', :core2 => 'core2', :core => 'prescott'
@@ -167,7 +166,6 @@ module HomebrewEnvExtension
 
   def clang
     self['CC'] = MacOS.locate "clang"
-    self['LD'] = self['CC']
     self['CXX'] = MacOS.locate "clang++"
     self['OBJC'] = self['CC']
     replace_in_cflags(/-Xarch_i386 (-march=\S*)/, '\1')
@@ -246,23 +244,23 @@ module HomebrewEnvExtension
     end
   end
 
-  def x11 silent=false
-    unless MacOS::X11.installed?
-      opoo "You do not have X11 installed, this formula may not build." unless silent
-      return
-    end
-
+  def x11
     # There are some config scripts here that should go in the PATH
-    prepend 'PATH', MacOS::X11.bin, ':'
+    append 'PATH', MacOS::X11.bin, ':'
 
-    prepend 'PKG_CONFIG_PATH', MacOS::X11.lib/'pkgconfig', ':'
-    prepend 'PKG_CONFIG_PATH', MacOS::X11.share/'pkgconfig', ':'
+    # Append these to PKG_CONFIG_LIBDIR so they are searched
+    # *after* our own pkgconfig directories, as we dupe some of the
+    # libs in XQuartz.
+    append 'PKG_CONFIG_LIBDIR', MacOS::X11.lib/'pkgconfig', ':'
+    append 'PKG_CONFIG_LIBDIR', MacOS::X11.share/'pkgconfig', ':'
 
     append 'LDFLAGS', "-L#{MacOS::X11.lib}"
     append 'CMAKE_PREFIX_PATH', MacOS::X11.prefix, ':'
     append 'CMAKE_INCLUDE_PATH', MacOS::X11.include, ':'
 
     append 'CPPFLAGS', "-I#{MacOS::X11.include}"
+
+    append 'ACLOCAL_PATH', MacOS::X11.share/'aclocal', ':'
 
     unless MacOS::CLT.installed?
       append 'CMAKE_PREFIX_PATH', MacOS.sdk_path/'usr/X11', ':'
@@ -436,8 +434,13 @@ class << ENV
   def fortran
     fc_flag_vars = %w{FCFLAGS FFLAGS}
 
+    # superenv removes these PATHs, but this option needs them
+    # TODO fix better, probably by making a super-fc
+    ENV['PATH'] += ":#{HOMEBREW_PREFIX}/bin:/usr/local/bin"
+
     if self['FC']
-      ohai "Building with an alternative Fortran compiler. This is unsupported."
+      ohai "Building with an alternative Fortran compiler"
+      puts "This is unsupported."
       self['F77'] = self['FC'] unless self['F77']
 
       if ARGV.include? '--default-fortran-flags'
@@ -460,11 +463,9 @@ class << ENV
         EOS
       end
 
-    elsif `/usr/bin/which gfortran`.chomp.size > 0
-      ohai <<-EOS.undent
-        Using Homebrew-provided fortran compiler.
-        This may be changed by setting the FC environment variable.
-        EOS
+    elsif `/usr/bin/which gfortran`.chuzzle
+      ohai "Using Homebrew-provided fortran compiler."
+      puts "This may be changed by setting the FC environment variable."
       self['FC'] = `/usr/bin/which gfortran`.chomp
       self['F77'] = self['FC']
 

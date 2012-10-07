@@ -30,13 +30,15 @@ class Elixir < Formula
 
   depends_on ErlangInstalled.new
 
+  env :userpaths
+
   def install
     system "make"
     bin.install Dir['bin/*'] - Dir['bin/*.bat']
 
     Dir['lib/*/ebin'].each do |path|
       app  = File.basename(File.dirname(path))
-      (lib/"#{app}/ebin").install path
+      (lib/"#{app}").install path
     end
   end
 

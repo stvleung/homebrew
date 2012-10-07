@@ -5,7 +5,7 @@ class Autoconf213 < Formula
   homepage 'http://www.gnu.org/software/autoconf/'
   url 'http://ftpmirror.gnu.org/autoconf/autoconf-2.13.tar.gz'
   mirror 'http://ftp.gnu.org/gnu/autoconf/autoconf-2.13.tar.gz'
-  sha1 '52a01449c48d7a117b35f213d3e4263578d846d6'
+  sha1 'e4826c8bd85325067818f19b2b2ad2b625da66fc'
 end
 
 class Spidermonkey < Formula
@@ -24,7 +24,7 @@ class Spidermonkey < Formula
   def install
     # aparently this flag causes the build to fail for ivanvc on 10.5 with a
     # penryn (core 2 duo) CPU. So lets be cautious here and remove it.
-    ENV['CFLAGS'] = ENV['CFLAGS'].gsub(/-msse[^\s]+/, '') if MacOS.leopard?
+    ENV['CFLAGS'] = ENV['CFLAGS'].gsub(/-msse[^\s]+/, '') if MacOS.version == :leopard
 
     # For some reason SpiderMonkey requires Autoconf-2.13
     ac213_prefix = buildpath/'ac213'

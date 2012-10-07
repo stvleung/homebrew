@@ -2,8 +2,8 @@ require 'formula'
 
 class Ffmpeg < Formula
   homepage 'http://ffmpeg.org/'
-  url 'http://ffmpeg.org/releases/ffmpeg-0.11.1.tar.bz2'
-  sha1 'bf01742be60c2e6280371fc4189d5d28933f1a56'
+  url 'http://ffmpeg.org/releases/ffmpeg-1.0.tar.bz2'
+  sha1 'bf1f917c4fa26cf225616f2063e60c33cac546be'
 
   head 'git://git.videolan.org/ffmpeg.git'
 
@@ -15,7 +15,6 @@ class Ffmpeg < Formula
   option "with-freetype", "Enable FreeType"
   option "with-theora", "Enable Theora video format"
   option "with-libvorbis", "Enable Vorbis audio format"
-  option "with-libogg", "Enable Ogg container format"
   option "with-libvpx", "Enable VP8 video format"
   option "with-rtmpdump", "Enable RTMP protocol"
   option "with-opencore-amr", "Enable AMR audio format"
@@ -26,7 +25,7 @@ class Ffmpeg < Formula
   option 'with-tools', 'Enable additional FFmpeg tools'
 
   # manpages won't be built without texi2html
-  depends_on 'texi2html' => :build if MacOS.mountain_lion?
+  depends_on 'texi2html' => :build if MacOS.version >= :mountain_lion
   depends_on 'yasm' => :build
 
   depends_on 'x264' unless build.include? 'without-x264'
@@ -37,7 +36,6 @@ class Ffmpeg < Formula
   depends_on :freetype if build.include? 'with-freetype'
   depends_on 'theora' if build.include? 'with-theora'
   depends_on 'libvorbis' if build.include? 'with-libvorbis'
-  depends_on 'libogg' if build.include? 'with-libogg'
   depends_on 'libvpx' if build.include? 'with-libvpx'
   depends_on 'rtmpdump' if build.include? 'with-rtmpdump'
   depends_on 'opencore-amr' if build.include? 'with-opencore-amr'
@@ -67,7 +65,6 @@ class Ffmpeg < Formula
     args << "--enable-libfreetype" if build.include? 'with-freetype'
     args << "--enable-libtheora" if build.include? 'with-theora'
     args << "--enable-libvorbis" if build.include? 'with-libvorbis'
-    args << "--enable-libogg" if build.include? 'with-libogg'
     args << "--enable-libvpx" if build.include? 'with-libvpx'
     args << "--enable-librtmp" if build.include? 'with-rtmpdump'
     args << "--enable-libopencore-amrnb" << "--enable-libopencore-amrwb" if build.include? 'with-opencore-amr'
@@ -79,7 +76,7 @@ class Ffmpeg < Formula
 
     # For 32-bit compilation under gcc 4.2, see:
     # http://trac.macports.org/ticket/20938#comment:22
-    ENV.append_to_cflags "-mdynamic-no-pic" if MacOS.leopard? or Hardware.is_32_bit?
+    ENV.append_to_cflags "-mdynamic-no-pic" if MacOS.version == :leopard or Hardware.is_32_bit?
 
     system "./configure", *args
 

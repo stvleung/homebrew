@@ -23,7 +23,7 @@ module MacOS::Xcode extend self
       when 10.6 then "3.2.6"
     else
       if MacOS.version >= 10.7
-        "4.4.1"
+        "4.5"
       else
         raise "Mac OS X `#{MacOS.version}' is invalid"
       end
@@ -132,8 +132,10 @@ module MacOS::Xcode extend self
         "4.3"
       when 40
         "4.4"
+      when 41
+        "4.5"
       else
-        "4.4"
+        "4.5"
       end
     end
   end
@@ -165,7 +167,7 @@ module MacOS::CLT extend self
 
   def version
     # The pkgutils calls are slow, don't repeat if no CLT installed.
-    @version if @version_determined
+    return @version if @version_determined
 
     @version_determined = true
     # Version string (a pretty damn long one) of the CLT package.

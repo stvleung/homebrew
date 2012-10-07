@@ -21,11 +21,11 @@ class Mutt < Formula
 
   def patches
     urls = [
-      ['--sidebar-patch', 'https://raw.github.com/nedos/mutt-sidebar-patch/master/mutt-sidebar.patch'],
-      ['--trash-patch', 'http://patch-tracker.debian.org/patch/series/dl/mutt/1.5.21-6.1/features/trash-folder'],
+      ['--sidebar-patch', 'http://lunar-linux.org/~tchan/mutt/patch-1.5.21.sidebar.20120829.txt'],
+      ['--trash-patch', 'http://patch-tracker.debian.org/patch/series/dl/mutt/1.5.21-6.2/features/trash-folder'],
       ['--ignore-thread-patch', 'http://ben.at.tanjero.com/patches/ignore-thread-1.5.21.patch'],
       ['--pgp-verbose-mime-patch',
-          'http://patch-tracker.debian.org/patch/series/dl/mutt/1.5.21-6.1/features-old/patch-1.5.4.vk.pgp_verbose_mime'],
+          'http://patch-tracker.debian.org/patch/series/dl/mutt/1.5.21-6.2/features-old/patch-1.5.4.vk.pgp_verbose_mime'],
     ]
 
     p = []
