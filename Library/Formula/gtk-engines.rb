@@ -3,16 +3,15 @@ require 'formula'
 class GtkEngines < Formula
   homepage 'http://git.gnome.org/browse/gtk-engines/'
   url 'http://ftp.gnome.org/pub/gnome/sources/gtk-engines/2.20/gtk-engines-2.20.2.tar.bz2'
-  md5 '5deb287bc6075dc21812130604c7dc4f'
+  sha1 '574c7577d70eaacecd2ffa14e288ef88fdcb6c2a'
+
+  option :universal
 
   depends_on 'pkg-config' => :build
   depends_on 'gettext' => :build
-  depends_on 'cairo' # we need exactly the same cairo as gtk has been linked against
+  depends_on 'intltool'
+  depends_on 'cairo'
   depends_on 'gtk+'
-
-  def options
-    [['--universal', 'Build universal binaries']]
-  end
 
   def install
     ENV.universal_binary if ARGV.build_universal?
@@ -27,8 +26,10 @@ class GtkEngines < Formula
       "GTK_PATH=#{HOMEBREW_PREFIX}/lib/gtk-2.0 " "#{HOMEBREW_PREFIX}/bin/gtk-demo"
   end
 
-  def caveats
-    "You will probably need to set GTK_PATH environment variable to #{HOMEBREW_PREFIX}/lib/gtk-2.0\n" \
-    "as by default GTK looks for modules in Cellar."
+  def caveats; <<-EOS.undent
+    You will need to set:
+      GTK_PATH=#{HOMEBREW_PREFIX}/lib/gtk-2.0
+    as by default GTK looks for modules in Cellar.
+    EOS
   end
 end

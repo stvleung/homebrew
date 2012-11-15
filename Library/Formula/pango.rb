@@ -41,7 +41,11 @@ class Pango < Formula
 
     ENV.universal_binary if build.universal?
 
-    args << '--with-x' unless build.include? 'without-x'
+    if build.include? 'without-x'
+      args << '--without-x'
+    else
+      args << '--with-x'
+    end
 
     system "./configure", *args
     system "make"
