@@ -18,8 +18,8 @@ class Xvid < Formula
 
     cd 'build/generic' do
       system "./configure", "--disable-assembly", "--prefix=#{prefix}"
+      ENV.j1 # Or make fails
       system "make"
-      ENV.j1 # Or install sometimes fails
       system "make install"
     end
   end

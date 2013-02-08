@@ -8,8 +8,8 @@ class GtkEngines < Formula
   option :universal
 
   depends_on 'pkg-config' => :build
-  depends_on 'gettext' => :build
-  depends_on 'intltool'
+  depends_on 'intltool' => :build
+  depends_on 'gettext'
   depends_on 'cairo'
   depends_on 'gtk+'
 
