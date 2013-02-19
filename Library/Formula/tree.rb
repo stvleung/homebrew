@@ -5,9 +5,7 @@ class Tree < Formula
   url 'http://mama.indstate.edu/users/ice/tree/src/tree-1.6.0.tgz'
   sha1 '350f851f68859a011668362dd0e7ee81fd1b713a'
 
-  def options
-    [['--universal', 'Build universal binaries.']]
-  end
+  option :universal
 
   def install
     ENV.append 'CFLAGS', '-fomit-frame-pointer'

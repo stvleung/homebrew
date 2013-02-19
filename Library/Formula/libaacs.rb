@@ -10,7 +10,10 @@ class Libaacs < Formula
   depends_on :libtool
   depends_on 'libgcrypt'
 
+  option :universal
+
   def install
+    ENV.universal_binary if build.universal?
     inreplace 'configure.ac', 'AM_CONFIG_HEADER', 'AC_CONFIG_HEADERS'
     system './bootstrap'
     system "./configure", "--disable-dependency-tracking",

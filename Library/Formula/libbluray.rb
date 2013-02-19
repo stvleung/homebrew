@@ -10,8 +10,11 @@ class Libbluray < Formula
   depends_on 'pkg-config' => :build
   depends_on :automake
   depends_on :libtool
+  
+  option :universal
 
   def install
+    ENV.universal_binary if build.universal?
     system "./bootstrap"
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"

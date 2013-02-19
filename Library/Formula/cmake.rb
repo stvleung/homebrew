@@ -33,6 +33,8 @@ class Cmake < Formula
 
   depends_on NoExpatFramework
 
+  option :universal
+
   def install
     args = %W[
       --prefix=#{prefix}
@@ -42,6 +44,8 @@ class Cmake < Formula
       --docdir=/share/doc/cmake
       --mandir=/share/man
     ]
+
+    ENV.universal_binary if build.universal?
 
     system "./bootstrap", *args
     system "make"
