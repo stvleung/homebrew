@@ -12,7 +12,11 @@ class Opus < Formula
     depends_on :libtool
   end
 
+  option :universal
+
   def install
+    ENV.universal_binary if build.universal?
+
     system "./autogen.sh" if build.head?
     system "./configure", "--disable-dependency-tracking", "--disable-doc",
                           "--prefix=#{prefix}"

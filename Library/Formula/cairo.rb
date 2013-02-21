@@ -32,7 +32,7 @@ class Cairo < Formula
       --prefix=#{prefix}
     ]
 
-    if build.include? 'without-x' || build.include? 'quartz'
+    if build.include? 'without-x' or build.include? 'quartz'
       args << '--enable-xlib=no' << '--enable-xlib-xrender=no'
     else
       args << '--with-x'

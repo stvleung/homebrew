@@ -7,10 +7,14 @@ class FdkAac < Formula
 
   head 'git://opencore-amr.git.sourceforge.net/gitroot/opencore-amr/fdk-aac'
 
+  option :universal
+
   depends_on :automake
   depends_on :libtool
 
   def install
+    ENV.universal_binary if build.universal?
+
     system "autoreconf -fvi"
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}",

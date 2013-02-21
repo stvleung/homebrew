@@ -9,14 +9,10 @@ class Theora < Formula
   depends_on 'libogg'
   depends_on 'libvorbis'
 
-  def options
-    [["--universal", "Build for both 32 & 64 bit Intel."]]
-  end
+  option :universal
 
   def install
-    if ARGV.build_universal?
-      ENV.universal_binary
-    end
+    ENV.universal_binary if build.universal?
 
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
