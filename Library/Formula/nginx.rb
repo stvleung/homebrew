@@ -6,8 +6,8 @@ class Nginx < Formula
   sha1 '65309abde9d683ece737da7a354c8fae24e15ecb'
 
   devel do
-    url 'http://nginx.org/download/nginx-1.3.13.tar.gz'
-    sha1 'b09b1c35b2b741292d41db1caa3b8a4123805a4c'
+    url 'http://nginx.org/download/nginx-1.3.15.tar.gz'
+    sha1 '16488c527078e26c32b0e467120501abf927fc8f'
   end
 
   env :userpaths
@@ -20,6 +20,8 @@ class Nginx < Formula
   option 'with-perl', 'Compile with support for Embedded Perl module'
   option 'with-gzip_static', 'Compile with support for Gzip Precompression module'
   option :universal
+
+  option 'with-spdy', 'Compile with support for SPDY module' if build.devel?
 
   skip_clean 'logs'
 
@@ -64,6 +66,10 @@ class Nginx < Formula
     args << "--with-http_gzip_static_module" if ARGV.include? 'with-gzip'
 
     ENV.universal_binary if build.universal?
+
+    if build.devel?
+      args << "--with-http_spdy_module" if build.include? 'with-spdy'
+    end
 
     system "./configure", *args
     system "make"

@@ -4,14 +4,14 @@ class Dart < Formula
   homepage 'http://www.dartlang.org/'
 
   if MacOS.prefer_64_bit?
-    url 'https://gsdview.appspot.com/dart-editor-archive-integration/18115/dartsdk-macos-64.zip'
-    sha1 '3cd57696a33e34cc2f33e1bb529c4bd4b59ebe6c'
+    url 'https://gsdview.appspot.com/dart-editor-archive-integration/20602/dartsdk-macos-64.zip'
+    sha1 'd5ba351fe5f60f0e2eb9da589a4f2f902cfc9b68'
   else
-    url 'https://gsdview.appspot.com/dart-editor-archive-integration/18115/dartsdk-macos-32.zip'
-    sha1 '01c7f8022681e65814ed5e7751ad1a4dba686a04'
+    url 'https://gsdview.appspot.com/dart-editor-archive-integration/20602/dartsdk-macos-32.zip'
+    sha1 '703b2fb61a7df03e898eb1fb332b3d004b7b9a34'
   end
 
-  version '18115'
+  version '20602'
 
   def install
     libexec.install Dir['*']
