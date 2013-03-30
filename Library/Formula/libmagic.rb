@@ -10,7 +10,10 @@ class Libmagic < Formula
   # See http://bugs.gw.com/view.php?id=230
   def patches; DATA; end if MacOS.version < :lion
 
+  option :universal
+
   def install
+    ENV.universal_binary if build.universal?
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}",
                           "--enable-fsect-man5"
