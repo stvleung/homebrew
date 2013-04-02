@@ -10,9 +10,13 @@ class HtopOsx < Formula
   depends_on :automake
   depends_on :libtool
 
+  option :universal
+
   def install
     # Otherwise htop will segfault when resizing the terminal
     ENV.no_optimization if ENV.compiler == :clang
+
+    ENV.universal_binary if build.universal?
 
     (buildpath/'m4').mkpath # or autogen fails
     system "./autogen.sh"
