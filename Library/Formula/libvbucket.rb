@@ -5,7 +5,10 @@ class Libvbucket < Formula
   url 'http://packages.couchbase.com/clients/c/libvbucket-1.8.0.4.tar.gz'
   sha1 '4f24a85d251c0fca69e7705681a2170dd794492a'
 
+  option :universal
+
   def install
+    ENV.universal_binary if build.universal?
     system "./configure", "--disable-debug",
                           "--disable-dependency-tracking",
                           "--prefix=#{prefix}",

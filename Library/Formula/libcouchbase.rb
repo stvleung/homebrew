@@ -7,11 +7,13 @@ class Libcouchbase < Formula
 
   option 'with-libev-plugin', 'Build libev IO plugin (will pull libev dependency)'
   option 'without-libevent-plugin', 'Do not build libevent plugin (will remove libevent dependency)'
+  option :universal
 
   depends_on 'libev' if build.include?('with-libev-plugin')
   depends_on 'libevent' unless build.include?('without-libevent-plugin')
 
   def install
+    ENV.universal_binary if build.universal?
     system "./configure", "--disable-debug",
                           "--disable-dependency-tracking",
                           "--prefix=#{prefix}",
