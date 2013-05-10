@@ -9,7 +9,10 @@ class Pgbouncer < Formula
   depends_on 'xmlto' => :build
   depends_on 'libevent'
 
+  option :universal
+
   def install
+    ENV.universal_binary if build.universal?
     ENV['XML_CATALOG_FILES'] = "#{etc}/xml/catalog"
 
     system "./configure", "--disable-debug",

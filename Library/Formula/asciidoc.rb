@@ -10,7 +10,10 @@ class Asciidoc < Formula
   depends_on :autoconf if build.head?
   depends_on 'docbook'
 
+  option :universal
+
   def install
+    ENV.universal_binary if build.universal?
     system "autoconf" if build.head?
     system "./configure", "--prefix=#{prefix}"
 

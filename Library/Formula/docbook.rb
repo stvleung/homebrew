@@ -5,6 +5,8 @@ class Docbook < Formula
   url 'http://www.docbook.org/xml/5.0/docbook-5.0.zip'
   sha1 '49f274e67efdee771300cba4da1f3e4bc00be1ec'
 
+  option :universal
+
   def install
     # Install 4.1.2 *after* 4.2, because we need to borrow the catalog.xml
     # file from the 4.2 package.

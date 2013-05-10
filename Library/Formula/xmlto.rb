@@ -8,6 +8,8 @@ class Xmlto < Formula
   depends_on 'docbook'
   depends_on 'gnu-getopt'
 
+  option :universal
+
   def install
     # GNU getopt is keg-only, so point configure to it
     ENV['GETOPT'] = Formula.factory('gnu-getopt').bin+"getopt"
@@ -15,6 +17,7 @@ class Xmlto < Formula
     ENV['XML_CATALOG_FILES'] = "#{etc}/xml/catalog"
 
     ENV.deparallelize
+    ENV.universal_binary if build.universal?
     system "./configure", "--disable-dependency-tracking", "--prefix=#{prefix}"
     system "make install"
   end
