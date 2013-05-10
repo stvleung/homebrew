@@ -11,7 +11,10 @@ class Libgsf < Formula
   depends_on 'gettext'
   depends_on 'glib'
 
+  option :universal
+
   def install
+    ENV.universal_binary if build.universal?
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
     system "make install"

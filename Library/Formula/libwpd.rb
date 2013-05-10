@@ -9,7 +9,10 @@ class Libwpd < Formula
   depends_on "glib"
   depends_on "libgsf"
 
+  option :universal
+
   def install
+    ENV.universal_binary if build.universal?
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
     system "make"
