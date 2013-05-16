@@ -12,15 +12,19 @@ class Redis < Formula
     cause 'Fails with "reference out of range from _linenoise"'
   end
 
+  option :universal
+
   def install
     # Architecture isn't detected correctly on 32bit Snow Leopard without help
     ENV["OBJARCH"] = MacOS.prefer_64_bit? ? "-arch x86_64" : "-arch i386"
+    ENV.universal_binary if build.universal?
 
     # Head and stable have different code layouts
     src = (buildpath/'src/Makefile').exist? ? buildpath/'src' : buildpath
     system "make", "-C", src, "CC=#{ENV.cc}"
 
     %w[benchmark cli server check-dump check-aof].each { |p| bin.install src/"redis-#{p}" }
+    bin.install src/'redis-sentinel' if build.head?
     %w[run db/redis log].each { |p| (var+p).mkpath }
 
     # Fix up default conf file to match our paths
