@@ -489,7 +489,7 @@ class Formula
   end
 
   def conflicts
-    requirements.select { |r| r.is_a? ConflictRequirement }
+    requirements.grep(ConflictRequirement)
   end
 
   # Returns a list of Dependency objects in an installable order, which
@@ -618,7 +618,8 @@ class Formula
   def fetch
     # Ensure the cache exists
     HOMEBREW_CACHE.mkpath
-    return downloader.fetch, downloader
+    downloader.fetch
+    cached_download
   end
 
   # For FormulaInstaller.
@@ -643,8 +644,8 @@ class Formula
   private
 
   def stage
-    fetched, downloader = fetch
-    verify_download_integrity fetched if fetched.kind_of? Pathname
+    fetched = fetch
+    verify_download_integrity(fetched) if fetched.file?
     mktemp do
       downloader.stage
       # Set path after the downloader changes the working folder.

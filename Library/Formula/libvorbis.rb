@@ -5,9 +5,9 @@ class Libvorbis < Formula
   url 'http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.3.tar.xz'
   sha1 '31d1a0ec4815bf1ee638b0f2850f03efcd48022a'
 
-  option :universal
-
   head 'http://svn.xiph.org/trunk/vorbis'
+
+  option :universal
 
   depends_on 'xz' => :build
   depends_on 'pkg-config' => :build
@@ -20,15 +20,9 @@ class Libvorbis < Formula
   end
 
   def install
-    if build.head?
-      system "./autogen.sh"
-    end
+    ENV.universal_binary if build.universal?
 
-    if build.universal?
-      ENV.universal_binary
-    end
-
-    system "./autogen.sh" if ARGV.build_head?
+    system "./autogen.sh" if build.head?
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
     system "make install"

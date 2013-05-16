@@ -5,9 +5,9 @@ class Libogg < Formula
   url 'http://downloads.xiph.org/releases/ogg/libogg-1.3.0.tar.gz'
   sha1 'a900af21b6d7db1c7aa74eb0c39589ed9db991b8'
 
-  option :universal
-
   head 'http://svn.xiph.org/trunk/ogg'
+
+  option :universal
 
   if build.head?
     depends_on :autoconf
@@ -16,9 +16,7 @@ class Libogg < Formula
   end
 
   def install
-    if build.universal?
-      ENV.universal_binary
-    end
+    ENV.universal_binary if build.universal?
 
     system "./autogen.sh" if build.head?
     system "./configure", "--disable-dependency-tracking",
