@@ -1,7 +1,9 @@
 require 'formula'
 
 class AspellLang < Formula
+  option :universal
   def install
+    ENV.universal_binary if build.universal?
     aspell = Formula.factory 'aspell'
     ENV.prepend 'PATH', aspell.bin, ':'
     system "./configure", "--vars", "ASPELL=#{aspell.bin}/aspell", "PREZIP=#{aspell.bin}/prezip"
@@ -481,10 +483,12 @@ class Aspell < Formula
     cause "Segmentation fault during linking."
   end
 
+  option :universal
   option "all", "Install all available dictionaries"
   aspell_available_languages.each { |lang| option "with-lang-#{lang}", "Install #{lang} dictionary" }
 
   def install
+    ENV.universal_binary if build.universal?
     system "./configure", "--prefix=#{prefix}"
     system "make install"
 

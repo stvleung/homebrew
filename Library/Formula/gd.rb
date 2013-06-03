@@ -15,12 +15,15 @@ class Gd < Formula
   depends_on 'giflib' => :optional
   depends_on :freetype => :optional
 
+  option :universal
+
   fails_with :llvm do
     build 2326
     cause "Undefined symbols when linking"
   end
 
   def install
+    ENV.universal_binary if build.universal?
     args = ["--prefix=#{prefix}"]
     args << "--without-freetype" unless build.with? 'freetype'
     system "./configure", *args
