@@ -1,4 +1,5 @@
 require 'os/mac/version'
+require 'hardware'
 
 module MacOS extend self
 
@@ -25,13 +26,6 @@ module MacOS extend self
     else
       Hardware::CPU.family if Hardware::CPU.type == :ppc
     end
-  end
-
-  # TODO: Can be removed when all bottles migrated to underscored cat symbols.
-  def cat_without_underscores
-    possibly_underscored_cat = cat
-    return nil unless possibly_underscored_cat
-    cat.to_s.gsub('_', '').to_sym
   end
 
   def oldest_cpu

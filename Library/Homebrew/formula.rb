@@ -40,10 +40,6 @@ class Formula
       unless bottle.checksum.nil? || bottle.checksum.empty?
         @bottle = bottle
         bottle.url ||= bottle_url(self)
-        if bottle.cat_without_underscores
-          bottle.url.gsub!(MacOS.cat.to_s,
-                           MacOS.cat_without_underscores.to_s)
-        end
       end
     end
 
@@ -91,7 +87,6 @@ class Formula
 
   def url;      active_spec.url;     end
   def version;  active_spec.version; end
-  def specs;    active_spec.specs;   end
   def mirrors;  active_spec.mirrors; end
 
   # if the dir is there, but it's empty we consider it not installed
@@ -99,38 +94,14 @@ class Formula
     (dir = installed_prefix).directory? && dir.children.length > 0
   end
 
-  def pinnable?
-    @pin.pinnable?
-  end
-
-  def pinned?
-    @pin.pinned?
-  end
-
-  def pin
-    @pin.pin
-  end
-
-  def unpin
-    @pin.unpin
-  end
-
   def linked_keg
     Pathname.new("#{HOMEBREW_LIBRARY}/LinkedKegs/#{name}")
   end
 
   def installed_prefix
-    devel_prefix = unless devel.nil?
-      Pathname.new("#{HOMEBREW_CELLAR}/#{name}/#{devel.version}")
-    end
-
-    head_prefix = unless head.nil?
-      Pathname.new("#{HOMEBREW_CELLAR}/#{name}/#{head.version}")
-    end
-
-    if active_spec == head || head and head_prefix.directory?
+    if head && (head_prefix = prefix(head.version)).directory?
       head_prefix
-    elsif active_spec == devel || devel and devel_prefix.directory?
+    elsif devel && (devel_prefix = prefix(devel.version)).directory?
       devel_prefix
     else
       prefix
@@ -142,8 +113,8 @@ class Formula
     Keg.new(installed_prefix).version
   end
 
-  def prefix
-    Pathname.new("#{HOMEBREW_CELLAR}/#{name}/#{version}")
+  def prefix(v=version)
+    Pathname.new("#{HOMEBREW_CELLAR}/#{name}/#{v}")
   end
   def rack; prefix.parent end
 
@@ -282,6 +253,22 @@ class Formula
     @lock.unlock unless @lock.nil?
   end
 
+  def pinnable?
+    @pin.pinnable?
+  end
+
+  def pinned?
+    @pin.pinned?
+  end
+
+  def pin
+    @pin.pin
+  end
+
+  def unpin
+    @pin.unpin
+  end
+
   def == b
     name == b.name
   end
@@ -316,6 +303,21 @@ class Formula
       -DCMAKE_FIND_FRAMEWORK=LAST
       -Wno-dev
     ]
+  end
+
+  def python(options={:allowed_major_versions => [2, 3]}, &block)
+    require 'python_helper'
+    python_helper(options, &block)
+  end
+
+  # Explicitly only execute the block for 2.x (if a python 2.x is available)
+  def python2 &block
+    python(:allowed_major_versions => [2], &block)
+  end
+
+  # Explicitly only execute the block for 3.x (if a python 3.x is available)
+  def python3 &block
+    python(:allowed_major_versions => [3], &block)
   end
 
   def self.class_s name
@@ -530,8 +532,7 @@ class Formula
     end
 
     if rack.directory?
-      rack.children.each do |keg|
-        next if keg.basename.to_s == '.DS_Store'
+      rack.subdirs.each do |keg|
         tab = Tab.for_keg keg
 
         hsh["installed"] << {
@@ -572,7 +573,7 @@ class Formula
       @exec_count ||= 0
       @exec_count += 1
       logd = HOMEBREW_LOGS/name
-      logfn = "#{logd}/%02d.%s" % [@exec_count, File.basename(cmd).split(' ').first]
+      logfn = "#{logd}/%02d.%s" % [@exec_count, File.basename(cmd.to_s).split(' ').first]
       mkdir_p(logd)
 
       rd, wr = IO.pipe
@@ -581,7 +582,7 @@ class Formula
         $stdout.reopen wr
         $stderr.reopen wr
         args.collect!{|arg| arg.to_s}
-        exec(cmd, *args) rescue nil
+        exec(cmd.to_s, *args) rescue nil
         puts "Failed to execute: #{cmd}"
         exit! 1 # never gets here unless exec threw or failed
       end
