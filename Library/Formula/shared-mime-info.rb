@@ -17,8 +17,7 @@ class SharedMimeInfo < Formula
     ENV.universal_binary if build.universal?
     # Disable the post-install update-mimedb due to crash
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}",
-                          "--disable-update-mimedb"
+                          "--prefix=#{prefix}"
     system "make install"
   end
 end
