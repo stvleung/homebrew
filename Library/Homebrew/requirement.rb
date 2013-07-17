@@ -43,8 +43,10 @@ class Requirement
 
   # Overriding #modify_build_environment is deprecated.
   # Pass a block to the the env DSL method instead.
+  # Note: #satisfied? should be called before invoking this method
+  # as the env modifications may depend on its side effects.
   def modify_build_environment
-    satisfied? and env.modify_build_environment(self)
+    env.modify_build_environment(self)
   end
 
   def env
@@ -52,11 +54,15 @@ class Requirement
   end
 
   def eql?(other)
-    instance_of?(other.class) && hash == other.hash
+    instance_of?(other.class) && name == other.name && tags == other.tags
   end
 
   def hash
     [name, *tags].hash
+  end
+
+  def inspect
+    "#<#{self.class}: #{name.inspect} #{tags.inspect}>"
   end
 
   def to_dependency
@@ -88,18 +94,7 @@ class Requirement
   end
 
   class << self
-    # The default formula to install to satisfy this requirement.
-    def default_formula(val=nil)
-      val.nil? ? @default_formula : @default_formula = val.to_s
-    end
-
-    def fatal(val=nil)
-      val.nil? ? @fatal : @fatal = val
-    end
-
-    def build(val=nil)
-      val.nil? ? @build : @build = val
-    end
+    attr_rw :fatal, :build, :default_formula
 
     def satisfy(options={}, &block)
       @satisfied ||= Requirement::Satisfier.new(options, &block)
@@ -145,9 +140,9 @@ class Requirement
       formulae = dependent.recursive_dependencies.map(&:to_formula)
       formulae.unshift(dependent)
 
-      formulae.map(&:requirements).each do |requirements|
-        requirements.each do |req|
-          if prune?(dependent, req, &block)
+      formulae.each do |f|
+        f.requirements.each do |req|
+          if prune?(f, req, &block)
             next
           else
             reqs << req

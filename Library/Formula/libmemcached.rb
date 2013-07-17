@@ -11,7 +11,7 @@ class Libmemcached < Formula
 
   def install
     ENV.universal_binary if build.universal?
-    ENV.append_to_cflags "-undefined dynamic_lookup" if MacOS.version == :leopard
+    ENV.append_to_cflags "-undefined dynamic_lookup" if MacOS.version <= :leopard
 
     system "./configure", "--prefix=#{prefix}"
     system "make install"
