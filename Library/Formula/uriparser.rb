@@ -8,7 +8,10 @@ class Uriparser < Formula
   depends_on 'pkg-config' => :build
   depends_on 'cpptest'
 
+  option :universal
+
   def install
+    ENV.universal_binary if build.universal?
     system "./configure", "--disable-dependency-tracking",
                           "--prefix=#{prefix}",
                           "--disable-doc"

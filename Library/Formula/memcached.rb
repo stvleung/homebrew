@@ -9,8 +9,10 @@ class Memcached < Formula
 
   option "enable-sasl", "Enable SASL support -- disables ASCII protocol!"
   option "enable-sasl-pwdb", "Enable SASL with memcached's own plain text password db support -- disables ASCII protocol!"
+  option :universal
 
   def install
+    ENV.universal_binary if build.universal?
     args = ["--prefix=#{prefix}", "--disable-coverage"]
     args << "--enable-sasl" if build.include? "enable-sasl"
     args << "--enable-sasl-pwdb" if build.include? "enable-sasl-pwdb"
