@@ -15,6 +15,7 @@ class Pango < Formula
   depends_on 'harfbuzz'
   depends_on 'fontconfig'
   depends_on :x11 unless build.without? 'x'
+  depends_on 'gobject-introspection'
 
   fails_with :llvm do
     build 2326
@@ -27,7 +28,7 @@ class Pango < Formula
       --prefix=#{prefix}
       --enable-man
       --with-html-dir=#{share}/doc
-      --disable-introspection
+      --enable-introspection=yes
     ]
 
     ENV.universal_binary if build.universal?
