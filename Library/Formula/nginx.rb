@@ -18,9 +18,8 @@ class Nginx < Formula
   option 'with-webdav', 'Compile with support for WebDAV module'
   option 'with-debug', 'Compile with support for debug log'
   option 'with-perl', 'Compile with support for Embedded Perl module'
-  option 'with-gzip_static', 'Compile with support for Gzip Precompression module'
-
   option 'with-spdy', 'Compile with support for SPDY module'
+  option 'with-gzip_static', 'Compile with support for Gzip Precompression module'
   option 'with-gunzip', 'Compile with support for gunzip module'
   option :universal
 
@@ -82,15 +81,12 @@ class Nginx < Formula
     args << passenger_config_args if build.include? 'with-passenger'
     args << "--with-http_dav_module" if build.include? 'with-webdav'
     args << "--with-debug" if build.include? 'with-debug'
-<<<<<<< HEAD
-    args << "--with-http_perl_module" if ARGV.include? 'with-perl'
-    args << "--with-http_gzip_static_module" if ARGV.include? 'with-gzip'
+    args << "--with-http_perl_module" if build.include? 'with-perl'
+    args << "--with-http_spdy_module" if build.include? 'with-spdy'
+    args << "--with-http_gzip_static_module" if build.include? 'with-gzip'
+    args << "--with-http_gunzip_module" if build.include? 'with-gunzip'
 
     ENV.universal_binary if build.universal?
-=======
-    args << "--with-http_spdy_module" if build.include? 'with-spdy'
-    args << "--with-http_gunzip_module" if build.include? 'with-gunzip'
->>>>>>> upstream/master
 
     if build.head?
       system "./auto/configure", *args
