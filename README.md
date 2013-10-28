@@ -1,29 +1,21 @@
-Homebrew
-========
-Features, usage and installation instructions are [summarized on the homepage][home].
+stvleung-universals
+==============
+These are formula that are modified in order to support universal builds
 
-What Packages Are Available?
-----------------------------
-1. You can [browse the Formula directory on GitHub][formula].
-2. Or type `brew search` for a list.
-3. Or run `brew server` to browse packages off of a local web server.
-4. Or visit [braumeister.org][braumeister] to browse packages online.
+How do I install these formulae?
+--------------------------------
+Just `brew tap stvleung/universals` and then `brew install <formula>`.
 
-More Documentation
-------------------
-`brew help` or `man brew` or check our [wiki][].
+If the formula conflicts with one from mxcl/master or another tap, you can `brew install stvleung/universals/<formula>`.
 
-Who Are You?
-------------
-I'm [Max Howell][mxcl] and I'm a splendid chap.
+You can also install via URL:
 
-License
--------
-Code is under the [BSD 2 Clause (NetBSD) license][license].
+```
+brew install https://raw.github.com/stvleung/homebrew-universals/master/<formula>.rb
+```
 
-[home]:http://brew.sh
+Docs
+----
+`brew help`, `man brew`, or the Homebrew [wiki][].
+
 [wiki]:http://wiki.github.com/mxcl/homebrew
-[mxcl]:http://twitter.com/mxcl
-[formula]:http://github.com/mxcl/homebrew/tree/master/Library/Formula/
-[braumeister]:http://braumeister.org
-[license]:https://github.com/mxcl/homebrew/tree/master/Library/Homebrew/LICENSE
