@@ -1,6 +1,6 @@
 require 'formula'
 
-class RegisteredDomainLibs < Formula
+class IpRegisteredDomainLibs < Formula
   homepage 'http://www.dkim-reputation.org/regdom-libs/'
   #url 'http://www.dkim-reputation.org/regdom-lib-downloads/registered-domain-libs-20131017.tgz'
   #sha1 '79c7cb6e6b0b4a3fc81c4ab3a552c98fef31af75'
