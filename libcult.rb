@@ -11,9 +11,9 @@ class Libcult < Formula
 
   def install
     mkdir "#{name}-apple-darwin"
-    chdir "#{name}-apple-darwin"
-    system "make", "-f", "../makefile", "install_prefix=#{prefix}"
-    lib.install 'cult/libcult.so'
+    system "make", "-C", "#{name}-apple-darwin", "-f", "../makefile"
+    lib.install "#{name}-apple-darwin/cult/libcult.so"
+    Dir["cult/**/*.hxx"].select {|f| (include+File.dirname(f)).install f}
   end
 end
 
