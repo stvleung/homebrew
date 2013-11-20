@@ -9,7 +9,7 @@ class LibbackendElements < Formula
 
   def install
     mkdir "#{name}-apple-darwin"
-    chdir "#{name}-apple-darwin"
-    system "make", "-f", "../makefile", "install_prefix=#{prefix}"
+    system "make", "-C", "#{name}-apple-darwin", "-f", "../makefile"
+    Dir["backend-elements/**/*.hxx", "backend-elements/**/*.txx"].select {|f| (include+File.dirname(f)).install f}
   end
 end

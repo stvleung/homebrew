@@ -13,7 +13,8 @@ class Libcult < Formula
     mkdir "#{name}-apple-darwin"
     system "make", "-C", "#{name}-apple-darwin", "-f", "../makefile"
     lib.install "#{name}-apple-darwin/cult/libcult.so"
-    Dir["cult/**/*.hxx"].select {|f| (include+File.dirname(f)).install f}
+    Dir["cult/**/*.hxx", "cult/**/*.ixx", "cult/**/*.txx"].select {|f| (include+File.dirname(f)).install f}
+    (include+'cult').install "#{name}-apple-darwin/cult/config.hxx"
   end
 end
 
