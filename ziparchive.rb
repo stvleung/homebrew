@@ -3,9 +3,9 @@ require 'formula'
 class Ziparchive < Formula
   homepage 'http://www.artpol-software.com'
   url 'http://www.artpol-software.com/Downloads/ziparchive_src.zip'
-  sha1 '4e20c159e5e3970b492a949eb4161eb2be254cac'
+  sha1 '1ee983a856d52546225e16c6d4ef0ad116871506'
 
-  version "4.5.0"
+  version "4.6.2"
 
   depends_on :autoconf => :build
   depends_on :automake => :build
@@ -88,22 +88,27 @@ diff -Naur ziparchive_orig/ZipArchive/ZipArchive.pc.in ziparchive/ZipArchive/Zip
 +Libs: -L${libdir} -lziparch
 +Cflags: -I${includedir}
 diff -Naur ziparchive_orig/ZipArchive/ZipFileHeader.cpp ziparchive/ZipArchive/ZipFileHeader.cpp
---- ziparchive_orig/ZipArchive/ZipFileHeader.cpp	2013-02-25 16:29:58.000000000 -0800
-+++ ziparchive/ZipArchive/ZipFileHeader.cpp	2013-10-28 18:13:00.000000000 -0700
-@@ -930,26 +930,7 @@
+--- ziparhive_orig/ZipArchive/ZipFileHeader.cpp.orig	2015-09-30 11:41:00.000000000 -0700
++++ ziparhive/ZipArchive/ZipFileHeader.cpp	2015-09-30 11:41:37.000000000 -0700
+@@ -932,31 +932,7 @@
  
  DWORD CZipFileHeader::GetSystemAttr()
  {
 -	if (ZipCompatibility::IsPlatformSupported(GetSystemCompatibility()))
--	{		
+-	{
 -		DWORD uAttr = GetSystemCompatibility() == ZipCompatibility::zcUnix ? (m_uExternalAttr >> 16) : (m_uExternalAttr & 0xFFFF);
 -		DWORD uConvertedAttr = ZipCompatibility::ConvertToSystem(uAttr, GetSystemCompatibility(), ZipPlatform::GetSystemID());
--		if (m_uComprSize == 0 && !ZipPlatform::IsDirectory(uConvertedAttr) && CZipPathComponent::HasEndingSeparator(GetFileName()))			
+-		// some zip files seem to report size greater than 0 for folders
+-		if ((m_uComprSize == 0 || m_uExternalAttr == 0) && !ZipPlatform::IsDirectory(uConvertedAttr) && CZipPathComponent::HasEndingSeparator(GetFileName()))
+-		{
 -			// can happen, a folder can have attributes set and no dir attribute (Python modules)
 -			// TODO: [postponed] fix and cache after reading from central dir, but avoid calling GetFileName() there to keep lazy name conversion
--			return ZipPlatform::GetDefaultDirAttributes() | uConvertedAttr; 
+-			// We convert again as uConvertedAttr were treated as a file during ZipCompatibility::ConvertToSystem above
+-			DWORD uSystemDirAttributes = ZipCompatibility::ConvertToSystem(ZipPlatform::GetDefaultDirAttributes(), ZipPlatform::GetSystemID(), GetSystemCompatibility());
+-			return ZipCompatibility::ConvertToSystem(uAttr | uSystemDirAttributes, GetSystemCompatibility(), ZipPlatform::GetSystemID());
+-		}
 -		else
--		{						
+-		{                                      
 -#ifdef _ZIP_SYSTEM_LINUX
 -			// converting from Windows attributes may create a not readable linux directory
 -			if (GetSystemCompatibility() != ZipCompatibility::zcUnix && ZipPlatform::IsDirectory(uConvertedAttr))
